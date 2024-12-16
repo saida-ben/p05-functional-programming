@@ -3,20 +3,33 @@ package org.mql.java.fp;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
+import java.util.stream.Stream;
 import java.util.function.*;
 
 import javax.swing.JButton;
 
 import org.mql.java.fp.functions.Logger;
+import org.mql.java.fp.models.Author;
 import org.mql.java.fp.services.DataManager;
+
+/*
+ * Une " Lambda Expression " est une syntaxe simplifiee permettant de manipuler les fonction (methodes) comme des objets . 
+ * Ainsi une fonction sera enveloppee automatiquement a l'interieur d'un objet cree depuis une classe (elle meme generee automatiquement)
+ * qui implemente ce qu'on appelle une interface fonctionnelle : une interface avec une et une seule fonction.
+ * Les " Lambda Expressio " seront utilisees, de facon benefique, dans toute les situations ou l'on a besoin d'un raisonnement oriente fonction et qu'il n'y pas lieu a raisonner classe et reuitilisabilite de code.
+ * Une autre syntaxe qui pourra etre utilisee dans les memes situations :
+ * Les references a des methodes existantes : Method References. et il y a 4 situations possible qui seront decrites dans le paragraphe suivant 
+ */
 
 public class LambdaExpressions {
 
 	public LambdaExpressions() {
-		exp07();
+		exp11();
 	}
 	
 	void exp01() {
@@ -121,11 +134,100 @@ public class LambdaExpressions {
 	}
 	
 	void exp08() {
+		//interfaces fonctionnel existance
 		Predicate<String> p1;
 		Consumer<String> c1;  // logger. au lieu de logger utiliser consumer
-		Supplier<String> s1; 
+		Supplier<String> s1; // fournusse que vous voullez
+		Function<String, Integer> f1; // entrer avec integer sortir avec string par exemple
+		BiFunction<String, String, Integer> bf;
 	}
 	
+	void exp09() {
+		/*
+		 * Etant donnee une liste d'autheur, on aimerait recuperer la liste des noms des auteurs qui sont nes avant 1960, triee et afficher la liste.
+		 */
+		//cree list immuable
+		// pipling
+		// JDK 8 nauvaeute : Lambda Expretion method-refernces stream 
+		List<Author> authors = Arrays.asList(
+				new Author("Eric Gamma", 1961),
+				new Author("James Gosling", 1955),
+				new Author("Brenden Eich", 1961),
+				new Author("Tim Berners-Lee", 1955 ),
+				new Author("Dennis Ritchie", 1941)
+				);
+		authors.stream()
+				.filter(new Predicate<Author>(){
+					public boolean test(Author t) {
+						System.out.println(" >> test");
+						return t.getYearBorn() < 1960;
+					}
+		})
+		.map(new Function<Author, String>(){
+					public String apply(Author t) {
+						System.out.println(" >> apply");
+						return t.getNom();
+								
+					}
+		})
+		.sorted(new Comparator<String>(){
+			public int compare(String o1, String o2) {
+				System.out.println(" >> compare"); // ce syso pour verifier que s on leve FOREACHE les fcts pipline ne fonctionne pas
+				return o1.compareTo(o2);
+			}
+		})
+		.forEach(new Consumer<String>() {
+			public void accept(String t) {
+				System.out.println(t);
+			}
+			
+		}); //foreach operation terminal pipline ne s execute que c est op terminale  les map / filter / sorted ne s'execute que si forEach existe
+
+	}
+	
+	void exp10() {
+		/*
+		 * Etant donnee une liste d'autheur, on aimerait recuperer la liste des noms des auteurs qui sont nes avant 1960, triee et afficher la liste.
+		 */
+		//cree list immuable
+		// pipling
+		// JDK 8 nauvaeute : Lambda Expretion method-refernces stream 
+		List<Author> authors = Arrays.asList(
+				new Author("Eric Gamma",1961),
+				new Author("James Gosling", 1955),
+				new Author("Brenden Eich", 1961),
+				new Author("Tim Berners-Lee", 1955 ),
+				new Author("Dennis Ritchie", 1941)
+				);
+		authors.stream()
+				.filter(a -> a.getYearBorn() < 1960)
+				.map(Author::getNom)
+				.sorted(String ::compareTo)
+				.forEach(System.out::println); //foreach operation terminal pipline ne s execute que c est op terminale
+		
+		
+		/*
+		 * String s = "ahhhh ahhhhhh";
+		 * 	s
+			.toUpperCase()
+			.substring(0, 0)
+			.charAt();
+			
+		 */
+
+
+	}
+	
+	void exp11() {
+		Stream.of(12, 20, 25, 14, 10, 87, 45)
+			   .filter(new Predicate<Integer>() {
+			      public boolean test(Integer t) {
+			    	  System.out.println("test()");
+			    	  return t % 2 == 0 ;
+			      }
+		       })
+			   .limit(3);
+	}
 	
 	public static void main(String[] args) {
 		new LambdaExpressions();
